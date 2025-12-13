@@ -1,0 +1,420 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light Theme Colors (Default) */
+  --background: hsl(0, 0%, 100%); /* #FFFFFF */
+  --foreground: hsl(0, 0%, 7%); /* #111111 */
+  --card: hsl(0, 0%, 98%); /* #FAFAFA */
+  --card-foreground: hsl(0, 0%, 7%); /* #111111 */
+  --popover: hsl(0, 0%, 98%); /* #FAFAFA */
+  --popover-foreground: hsl(0, 0%, 7%); /* #111111 */
+
+  /* Primary Red Gradient */
+  --primary: hsl(4, 100%, 58%); /* #FF3C2A */
+  --primary-foreground: hsl(0, 0%, 100%);
+  --primary-dark: hsl(4, 91%, 24%); /* #7A0C0C */
+
+  /* Secondary Accent */
+  --secondary: hsl(12, 100%, 60%); /* #FF5A36 */
+  --secondary-foreground: hsl(0, 0%, 100%);
+
+  /* Surface and borders - Light */
+  --muted: hsl(0, 0%, 96%); /* #F5F5F5 */
+  --muted-foreground: hsl(0, 0%, 27%); /* #444444 */
+  --accent: hsl(4, 100%, 58%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 100%, 50%); /* #dc2626 */
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(0, 0%, 87%); /* #DDDDDD */
+  --input: hsl(0, 0%, 92%); /* #EAEAEA */
+  --ring: hsl(4, 100%, 58%);
+
+  /* Success and warning */
+  --success: hsl(142, 71%, 45%); /* #16a34a */
+  --warning: hsl(25, 95%, 53%); /* #ca8a04 */
+  --info: hsl(221, 83%, 53%); /* #2563eb */
+
+  /* Chart colors */
+  --chart-1: hsl(4, 100%, 58%);
+  --chart-2: hsl(142, 71%, 45%);
+  --chart-3: hsl(25, 95%, 53%);
+  --chart-4: hsl(221, 83%, 53%);
+  --chart-5: hsl(330, 75%, 51%);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-serif: 'Georgia', serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+
+  /* Border radius */
+  --radius: 1rem;
+
+  /* Spacing */
+  --spacing: 0.25rem;
+}
+
+.dark {
+  /* Dark Theme Colors */
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(0, 0%, 100%);
+  --card: hsl(0, 0%, 6.7%);
+  --card-foreground: hsl(0, 0%, 100%);
+  --popover: hsl(0, 0%, 4%);
+  --popover-foreground: hsl(0, 0%, 100%);
+  
+  /* Surface and borders - Dark */
+  --muted: hsl(0, 0%, 8%); /* #1a1a1a */
+  --muted-foreground: hsl(0, 0%, 60%); /* #999999 */
+  --border: hsl(0, 0%, 16%); /* #2A2A2A */
+  --input: hsl(0, 0%, 8%);
+  
+  /* Sidebar - Dark */
+  --sidebar: hsl(0, 0%, 6.7%);
+  --sidebar-foreground: hsl(0, 0%, 85%);
+  --sidebar-primary: hsl(4, 100%, 58%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(0, 0%, 8%);
+  --sidebar-accent-foreground: hsl(4, 100%, 58%);
+  --sidebar-border: hsl(0, 0%, 16%);
+  --sidebar-ring: hsl(4, 100%, 58%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 96%) 100%);
+    min-height: 100vh;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(0, 0%, 92%);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(4, 100%, 58%);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(4, 91%, 24%);
+  }
+}
+
+@layer components {
+  /* Gradient utilities */
+  .gradient-bg {
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+  }
+
+  .gradient-primary {
+    background: linear-gradient(90deg, hsl(4, 100%, 58%), hsl(4, 91%, 24%));
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(90deg, hsl(12, 100%, 60%), hsl(4, 100%, 58%));
+  }
+
+  /* Glass effect */
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: hsla(var(--background), 0.8);
+    border: 1px solid hsla(var(--border), 0.3);
+  }
+
+  /* Hover effects */
+  .hover-glow {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .hover-glow:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px hsla(4, 100%, 58%, 0.3);
+  }
+
+  /* Navigation links */
+  .nav-link {
+    transition: color 0.2s ease-in-out;
+  }
+
+  .nav-link:hover {
+    color: hsl(4, 100%, 58%);
+  }
+
+  /* Play button */
+  .play-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, hsl(4, 100%, 58%), hsl(4, 91%, 24%));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .play-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px hsla(4, 100%, 58%, 0.6);
+  }
+
+  /* Music visualizer */
+  .music-visualizer {
+    display: flex;
+    align-items: flex-end;
+    height: 30px;
+    gap: 2px;
+  }
+
+  .bar {
+    width: 3px;
+    background: linear-gradient(to top, hsl(4, 100%, 58%), hsl(12, 100%, 60%));
+    animation: visualizer 1.2s ease-in-out infinite;
+  }
+
+  .bar:nth-child(1) { animation-delay: 0s; height: 20px; }
+  .bar:nth-child(2) { animation-delay: 0.1s; height: 15px; }
+  .bar:nth-child(3) { animation-delay: 0.2s; height: 25px; }
+  .bar:nth-child(4) { animation-delay: 0.3s; height: 10px; }
+  .bar:nth-child(5) { animation-delay: 0.4s; height: 20px; }
+
+  /* Loading spinner */
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Fade in animation */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  /* Slide up animation */
+  .slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  /* Floating animation */
+  .floating {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Pulse animation */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite alternate;
+  }
+}
+
+@layer utilities {
+  /* Text colors */
+  .text-primary { color: hsl(4, 100%, 58%); }
+  .text-secondary { color: hsl(12, 100%, 60%); }
+  .text-success { color: hsl(142, 76%, 47%); }
+  .text-warning { color: hsl(38, 92%, 50%); }
+  .text-info { color: hsl(217, 100%, 67%); }
+  
+  /* Background colors */
+  .bg-surface { background-color: hsl(0, 0%, 8%); }
+  .bg-surface-secondary { background-color: hsl(0, 0%, 14%); }
+  
+  /* Border colors */
+  .border-surface { border-color: hsl(0, 0%, 16%); }
+  
+  /* Focus states */
+  .focus-primary:focus {
+    outline: 2px solid hsl(4, 100%, 58%);
+    outline-offset: 2px;
+  }
+}
+
+/* Keyframe animations */
+@keyframes visualizer {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.3); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 20px hsla(4, 100%, 58%, 0.5); }
+  100% { box-shadow: 0 0 30px hsla(4, 100%, 58%, 0.8), 0 0 40px hsla(4, 100%, 58%, 0.6); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Custom component styles */
+.music-card {
+  @apply glass-effect rounded-2xl p-4 hover-glow cursor-pointer;
+}
+
+.artist-card {
+  @apply glass-effect rounded-2xl p-6 hover-glow cursor-pointer;
+}
+
+.event-card {
+  @apply glass-effect rounded-2xl overflow-hidden hover-glow;
+}
+
+.merch-card {
+  @apply glass-effect rounded-2xl overflow-hidden hover-glow;
+}
+
+/* Button variants */
+.btn-primary {
+  @apply gradient-primary text-white px-6 py-3 rounded-2xl font-semibold hover-glow transition-all duration-300;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white px-6 py-3 rounded-2xl font-semibold hover-glow transition-all duration-300;
+}
+
+.btn-outline {
+  @apply border border-border text-foreground px-6 py-3 rounded-2xl font-semibold hover:bg-muted transition-all duration-300;
+}
+
+/* Input styles */
+.input-primary {
+  @apply w-full bg-input border border-border rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ring transition-colors;
+}
+
+/* Card styles */
+.card-glass {
+  @apply glass-effect rounded-2xl p-6 border border-border;
+}
+
+.card-surface {
+  @apply bg-surface rounded-2xl p-6 border border-border;
+}
+
+/* Typography */
+.heading-primary {
+  @apply text-4xl md:text-5xl font-bold text-foreground;
+}
+
+.heading-secondary {
+  @apply text-3xl md:text-4xl font-bold text-foreground;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+}
+
+/* Layout utilities */
+.container-custom {
+  @apply container mx-auto px-4 max-w-7xl;
+}
+
+.section-padding {
+  @apply py-20;
+}
+
+/* Mobile responsive utilities */
+@screen sm {
+  .mobile-hidden {
+    @apply hidden;
+  }
+}
+
+@screen md {
+  .desktop-visible {
+    @apply block;
+  }
+}
+
+/* Animation delays for staggered effects */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Video background overlay */
+.video-overlay {
+  position: relative;
+}
+
+.video-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, hsla(var(--background), 0.7) 0%, hsla(4, 100%, 58%, 0.1) 100%);
+  z-index: 1;
+}
+
+.video-overlay > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Date and Time Input Dark Mode Fixes */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.dark input[type="date"],
+.dark input[type="time"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+  opacity: 0.8;
+}
+
+/* Ensure the input field text is visible in dark mode */
+.dark input[type="date"],
+.dark input[type="time"] {
+  color: hsl(var(--foreground));
+}
+
+/* Remove type button when focused - only show picker */
+input[type="date"]:focus::-webkit-calendar-picker-indicator,
+input[type="time"]:focus::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
