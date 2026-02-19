@@ -4,6 +4,7 @@ import {
   Users,
   DollarSign,
   BarChart3,
+  Package,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,6 +20,8 @@ import AdminContentManagement from "@/components/admin/admin-content-management"
 import AdminOrdersFulfillment from "@/components/admin/admin-orders-fulfillment";
 import AdminMarketingPromotion from "@/components/admin/admin-marketing-promotion";
 import AdminSystemSettings from "@/components/admin/admin-system-settings-simplified";
+import AdminMetaAnalytics from "@/components/admin/admin-meta-analytics";
+import AdminNFTManagement from "@/components/admin/admin-nft-management";
 
 export default function AdminPanel() {
   const auth = useRequireRole("admin");
@@ -83,9 +86,14 @@ export default function AdminPanel() {
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-8 h-auto gap-1">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-9 mb-8 h-auto gap-1">
             <TabsTrigger value="overview" className="text-xs md:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="users" className="text-xs md:text-sm">Users</TabsTrigger>
+            <TabsTrigger value="meta" className="text-xs md:text-sm">Meta</TabsTrigger>
+            <TabsTrigger value="nft" className="text-xs md:text-sm flex items-center gap-1">
+              <Package className="w-3 h-3" />
+              NFT
+            </TabsTrigger>
             <TabsTrigger value="financial" className="text-xs md:text-sm">Financial</TabsTrigger>
             <TabsTrigger value="content" className="text-xs md:text-sm">Content</TabsTrigger>
             <TabsTrigger value="orders" className="text-xs md:text-sm">Orders</TabsTrigger>
@@ -193,6 +201,14 @@ export default function AdminPanel() {
           {/* Other Tabs */}
           <TabsContent value="users">
             <AdminUserManagementUnified />
+          </TabsContent>
+
+          <TabsContent value="meta">
+            <AdminMetaAnalytics />
+          </TabsContent>
+
+          <TabsContent value="nft">
+            <AdminNFTManagement />
           </TabsContent>
 
           <TabsContent value="financial">

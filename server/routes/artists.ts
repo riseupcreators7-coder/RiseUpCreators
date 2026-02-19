@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { authenticateToken, requireRole, AuthRequest } from "../middleware/auth";
 import { AnalyticsService } from "../services/analytics";
 import { ObjectId } from "mongodb";
+import { youtubeClient } from "../services/youtube";
 
 // Database connection helper
 async function getDb() {
@@ -42,6 +43,320 @@ export function setupArtistRoutes(app: Express) {
     } catch (error) {
       
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Verify YouTube channel - Redirect to new admin approval system
+  app.post("/api/creators/verify", authenticateToken, requireRole(["artist"]), async (req: AuthRequest, res) => {
+    // This endpoint is deprecated - redirect to new submission endpoint
+    return res.status(301).json({
+      success: false,
+      message: "This endpoint has been moved. Please use /api/creators/youtube/submit-verification",
+      newEndpoint: "/api/creators/youtube/submit-verification"
+    });
+  });
+
+  // Get YouTube channel data for current artist
+  app.get("/api/creators/youtube", authenticateToken, requireRole(["artist"]), async (req: AuthRequest, res) => {
+    try {
+      const artist = await storage.getArtistByUserId(req.user!.id);
+      if (!artist) {
+        return res.status(404).json({ message: "Artist profile not found" });
+      }
+
+      const youtubeChannel = (artist.artist as any)?.youtubeChannel;
+      if (!youtubeChannel) {
+        return res.status(404).json({ 
+          message: "No YouTube channel linked",
+          hasChannel: false
+        });
+      }
+
+      // Return channel data with verification status
+      // Frontend will handle display based on status
+      res.json({
+        success: true,
+        hasChannel: true,
+        data: youtubeChannel
+      });
+    } catch (error) {
+      console.error("Error fetching YouTube data:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get YouTube videos for current artist
+  app.get("/api/creators/youtube/videos", authenticateToken, requireRole(["artist"]), async (req: AuthRequest, res) => {
+    try {
+      const { limit = 12, fresh = 'false' } = req.query;
+      
+      const artist = await storage.getArtistByUserId(req.user!.id);
+      if (!artist) {
+        return res.status(404).json({ message: "Artist profile not found" });
+      }
+
+      const youtubeChannel = (artist.artist as any)?.youtubeChannel;
+      if (!youtubeChannel || !youtubeChannel.channelId) {
+        return res.status(404).json({ 
+          message: "No YouTube channel linked",
+          hasChannel: false
+        });
+      }
+
+      // Clear cache if fresh data is requested
+      if (fresh === 'true') {
+        youtubeClient.clearCache();
+        console.log('🔄 Cache cleared for videos fetch');
+      }
+
+      // Fetch videos from YouTube API
+      const videos = await youtubeClient.getChannelVideos(
+        youtubeChannel.channelId,
+        parseInt(limit as string)
+      );
+
+      res.json({
+        success: true,
+        data: videos
+      });
+    } catch (error: any) {
+      console.error("Error fetching YouTube videos:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to fetch YouTube videos",
+        success: false
+      });
+    }
+  });
+
+  // Get YouTube videos for any artist (public endpoint)
+  app.get("/api/artists/:artistId/youtube/videos", async (req, res) => {
+    try {
+      const { artistId } = req.params;
+      const { limit = 6 } = req.query;
+      
+      const artist = await storage.getArtistByUserId(artistId);
+      if (!artist) {
+        return res.status(404).json({ message: "Artist profile not found" });
+      }
+
+      const youtubeChannel = (artist.artist as any)?.youtubeChannel;
+      if (!youtubeChannel || !youtubeChannel.channelId) {
+        return res.status(404).json({ 
+          message: "No YouTube channel linked",
+          hasChannel: false
+        });
+      }
+
+      // Only show videos if channel is verified
+      if (youtubeChannel.verificationStatus !== 'verified') {
+        return res.status(404).json({ 
+          message: "YouTube channel not verified",
+          hasChannel: false
+        });
+      }
+
+      // Fetch videos from YouTube API
+      const videos = await youtubeClient.getChannelVideos(
+        youtubeChannel.channelId,
+        parseInt(limit as string)
+      );
+
+      res.json({
+        success: true,
+        data: videos
+      });
+    } catch (error: any) {
+      console.error("Error fetching YouTube videos:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to fetch YouTube videos",
+        success: false
+      });
+    }
+  });
+
+  // Get Facebook Page data for any artist (public endpoint)
+  app.get("/api/artists/:artistId/facebook", async (req, res) => {
+    try {
+      const { artistId } = req.params;
+      
+      const artist = await storage.getArtistByUserId(artistId);
+      if (!artist) {
+        return res.status(404).json({ message: "Artist profile not found" });
+      }
+
+      const facebookPage = (artist.artist as any)?.metaConnections?.facebook;
+      if (!facebookPage || !facebookPage.connected) {
+        return res.status(404).json({ 
+          message: "No Facebook Page linked",
+          hasPage: false
+        });
+      }
+
+      // Only show page if verified
+      if (facebookPage.verificationStatus !== 'verified') {
+        return res.status(404).json({ 
+          message: "Facebook Page not verified",
+          hasPage: false
+        });
+      }
+
+      res.json({
+        success: true,
+        hasPage: true,
+        data: {
+          pageId: facebookPage.pageId,
+          pageName: facebookPage.pageName,
+          username: facebookPage.username,
+          followersCount: facebookPage.followersCount,
+          likesCount: facebookPage.likesCount,
+          profilePicture: facebookPage.profilePicture,
+          coverPhoto: facebookPage.coverPhoto,
+          isVerified: facebookPage.isVerified,
+          category: facebookPage.category,
+          verificationStatus: facebookPage.verificationStatus,
+          lastSyncedAt: facebookPage.lastSyncedAt
+        }
+      });
+    } catch (error: any) {
+      console.error("Error fetching Facebook data:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to fetch Facebook data",
+        success: false
+      });
+    }
+  });
+
+  // Get Instagram account data for any artist (public endpoint)
+  app.get("/api/artists/:artistId/instagram", async (req, res) => {
+    try {
+      const { artistId } = req.params;
+      
+      const artist = await storage.getArtistByUserId(artistId);
+      if (!artist) {
+        return res.status(404).json({ message: "Artist profile not found" });
+      }
+
+      const instagramAccount = (artist.artist as any)?.metaConnections?.instagram;
+      if (!instagramAccount || !instagramAccount.connected) {
+        return res.status(404).json({ 
+          message: "No Instagram account linked",
+          hasAccount: false
+        });
+      }
+
+      // Only show account if verified
+      if (instagramAccount.verificationStatus !== 'verified') {
+        return res.status(404).json({ 
+          message: "Instagram account not verified",
+          hasAccount: false
+        });
+      }
+
+      res.json({
+        success: true,
+        hasAccount: true,
+        data: {
+          accountId: instagramAccount.accountId,
+          username: instagramAccount.username,
+          accountType: instagramAccount.accountType,
+          followersCount: instagramAccount.followersCount,
+          followingCount: instagramAccount.followingCount,
+          mediaCount: instagramAccount.mediaCount,
+          profilePicture: instagramAccount.profilePicture,
+          biography: instagramAccount.biography,
+          website: instagramAccount.website,
+          verificationStatus: instagramAccount.verificationStatus,
+          lastSyncedAt: instagramAccount.lastSyncedAt
+        }
+      });
+    } catch (error: any) {
+      console.error("Error fetching Instagram data:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to fetch Instagram data",
+        success: false
+      });
+    }
+  });
+
+  // Refresh YouTube channel data
+  app.post("/api/creators/youtube/refresh", authenticateToken, requireRole(["artist"]), async (req: AuthRequest, res) => {
+    try {
+      const artist = await storage.getArtistByUserId(req.user!.id);
+      if (!artist) {
+        return res.status(404).json({ message: "Artist profile not found" });
+      }
+
+      const youtubeChannel = (artist.artist as any)?.youtubeChannel;
+      if (!youtubeChannel || !youtubeChannel.channelId) {
+        return res.status(404).json({ message: "No YouTube channel linked" });
+      }
+
+      // IMPORTANT: Clear cache before fetching fresh data
+      youtubeClient.clearCache();
+      console.log('🔄 Cache cleared, fetching fresh data from YouTube API...');
+
+      // Get fresh data from YouTube API (bypasses cache)
+      const channelData = await youtubeClient.getChannelById(youtubeChannel.channelId);
+
+      console.log('📊 Fresh channel data from YouTube:', {
+        channelName: channelData.channelName,
+        isYouTubeVerified: channelData.isYouTubeVerified,
+        subscribers: channelData.subscriberCount
+      });
+
+      // Update artist profile with fresh data
+      const db = await getDb();
+      await db.collection("users").updateOne(
+        { _id: new ObjectId(req.user!.id) },
+        {
+          $set: {
+            "artist.youtubeChannel": {
+              ...youtubeChannel,
+              channelName: channelData.channelName,
+              subscriberCount: channelData.subscriberCount,
+              videoCount: channelData.videoCount,
+              viewCount: channelData.viewCount,
+              thumbnails: channelData.thumbnails,
+              description: channelData.description,
+              customUrl: channelData.customUrl,
+              country: channelData.country,
+              isYouTubeVerified: channelData.isYouTubeVerified, // Add YouTube verification status
+              lastSyncedAt: new Date()
+            }
+          }
+        }
+      );
+
+      console.log(`✅ YouTube data refreshed for ${artist.name}:`, {
+        subscribers: channelData.subscriberCount,
+        videos: channelData.videoCount,
+        views: channelData.viewCount,
+        isYouTubeVerified: channelData.isYouTubeVerified
+      });
+
+      res.json({
+        success: true,
+        message: "YouTube data refreshed successfully",
+        data: {
+          channelId: youtubeChannel.channelId,
+          channelName: channelData.channelName,
+          subscriberCount: channelData.subscriberCount,
+          videoCount: channelData.videoCount,
+          viewCount: channelData.viewCount,
+          thumbnails: channelData.thumbnails,
+          description: channelData.description,
+          customUrl: channelData.customUrl,
+          country: channelData.country,
+          isYouTubeVerified: channelData.isYouTubeVerified, // Include in response
+          lastSyncedAt: new Date()
+        }
+      });
+    } catch (error: any) {
+      console.error("YouTube refresh error:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to refresh YouTube data",
+        success: false
+      });
     }
   });
 
@@ -648,5 +963,6 @@ export function setupArtistRoutes(app: Express) {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
 }
 

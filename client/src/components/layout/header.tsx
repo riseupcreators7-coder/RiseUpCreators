@@ -25,8 +25,10 @@ export default function Header() {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Analytics throttling state
   const lastAnalyticsCall = useRef<Record<string, number>>({});
@@ -42,6 +44,23 @@ export default function Header() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // Click outside handler for search
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+
+    if (isSearchFocused) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchFocused]);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -54,9 +73,12 @@ export default function Header() {
   const navLinks = [
     { href: user ? "/home" : "/", label: "Home" },
     { href: "/discover", label: "Discover" },
-
     { href: "/events", label: "Events" },
     { href: "/merch", label: "Merch" },
+    { href: "/nft-marketplace", label: "NFT Market" },
+    { href: "/nft-auctions", label: "Auctions" },
+    { href: "/artist-subscriptions", label: "Subscriptions" },
+    { href: "/crowdfunding", label: "Crowdfunding" },
   ];
 
   const isActive = (href: string) => {
@@ -167,35 +189,35 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 z-50 transition-all duration-300 ${
           isScrolled
             ? "glass-effect border-b border-border backdrop-blur-lg"
             : "bg-transparent"
         }`}
       >
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto  h-16 flex items-center">
           {/* Logo */}
           <Link
             href={user ? "/home" : "/"}
-            className="flex items-center space-x-2 hover-glow"
+            className="flex items-center  hover-glow flex-shrink-0"
           >
             <img
               src="/logo.png"
               alt="Rise Up Creators Logo"
               className="w-10 h-10 rounded-xl object-contain"
             />
-            <span className="text-xl font-bold hidden sm:block">
+            <span className="text-base font-bold hidden xl:block">
               Rise Up Creators
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-2 lg:space-x-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`nav-link transition-colors ${
+                className={`nav-link transition-colors text-sm whitespace-nowrap ${
                   isActive(link.href)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-primary"
@@ -208,22 +230,29 @@ export default function Header() {
           </nav>
 
           {/* Search Bar */}
-          <div className="hidden lg:block flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="relative">
-              <Input
+          <div className="hidden lg:block flex-shrink-0 mx-3">
+            <form 
+              onSubmit={handleSearch} 
+              className="relative"
+            >
+              <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search songs, artists, events..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-input border-border rounded-2xl pl-10 pr-4 py-2 focus-primary"
+                className="bg-input border border-border rounded-2xl pl-10 pr-4 py-2 focus:ring-2 focus:ring-primary focus:border-primary text-sm outline-none"
                 data-testid="search-input"
               />
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground pointer-events-none" />
             </form>
           </div>
 
+          {/* Spacer */}
+          <div className="flex-1 hidden lg:block"></div>
+
           {/* User Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             {/* Theme Toggle */}
             <Button
               variant="ghost"

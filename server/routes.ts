@@ -6,6 +6,10 @@ import { storage } from "./storage";
 import { setupAuthRoutes } from "./routes/auth";
 import { setupUserRoutes } from "./routes/users";
 import { setupArtistRoutes } from "./routes/artists";
+import { setupYouTubeVerificationRoutes } from "./routes/youtube-verification";
+import { setupMetaAuthRoutes } from "./routes/meta-auth";
+import { setupMetaContentRoutes } from "./routes/meta-content";
+import { setupAdminMetaRoutes } from "./routes/admin-meta";
 import { setupContentRoutes } from "./routes/content";
 import { setupCommerceRoutes } from "./routes/commerce";
 import { setupTicketRoutes } from "./routes/tickets";
@@ -13,6 +17,7 @@ import { setupAdminRoutes } from "./routes/admin";
 import { setupAdsRoutes } from "./routes/ads";
 import { setupSearchRoutes } from "./routes/search";
 import { setupIntegrationRoutes } from "./routes/integrations";
+import { setupNFTRoutes } from "./routes/nft";
 import webhookRoutes from "./routes/webhooks";
 
 // Extend session type for cart
@@ -228,12 +233,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupAuthRoutes(app);
   setupUserRoutes(app);
   setupArtistRoutes(app);
+  setupYouTubeVerificationRoutes(app);
+  setupMetaAuthRoutes(app);
+  setupMetaContentRoutes(app);
+  setupAdminMetaRoutes(app);
   setupContentRoutes(app);
   setupCommerceRoutes(app);
   setupTicketRoutes(app);
   setupAdminRoutes(app);
   setupAdsRoutes(app);
   setupIntegrationRoutes(app);
+  setupNFTRoutes(app);
   setupSearchRoutes(app);
   
   // Setup webhook routes (no auth middleware)

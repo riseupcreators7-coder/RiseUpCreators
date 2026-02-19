@@ -78,7 +78,12 @@ export const requireRole = (roles: string[]) => {
     const hasRequiredRole = roles.includes(userRole);
 
     if (!hasRequiredRole) {
-      return res.status(403).json({ message: "Insufficient permissions" });
+      console.log(`❌ Role check failed: User has role "${userRole}", but requires one of: ${roles.join(", ")}`);
+      return res.status(403).json({ 
+        message: "Insufficient permissions",
+        required: roles,
+        current: userRole
+      });
     }
 
     next();

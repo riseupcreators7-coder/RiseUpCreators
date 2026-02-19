@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import {
   Home, Compass, Calendar, ShoppingBag, Heart, ListMusic,
   Settings, User, BarChart3, Upload, PlusCircle, Crown, Megaphone, Zap,
-  TrendingUp, TrendingDown, Users, DollarSign
+  TrendingUp, TrendingDown, Users, DollarSign, Package
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -72,6 +72,7 @@ export default function Sidebar() {
     { href: "/dashboard", icon: User, label: "Dashboard" },
     { href: "/playlists", icon: ListMusic, label: "Playlists" },
     { href: "/favorites", icon: Heart, label: "Favorites" },
+    { href: "/my-nfts", icon: Package, label: "My NFTs" },
     { href: "/settings", icon: Settings, label: "Settings" },
   ];
 
@@ -81,6 +82,7 @@ export default function Sidebar() {
     { href: "/favorites", icon: Heart, label: "Favorites" },
     { href: "/dashboard?tab=orders", icon: ShoppingBag, label: "Orders" },
     { href: "/playlists", icon: ListMusic, label: "Playlists" },
+    { href: "/my-nfts", icon: Package, label: "My NFTs" },
   ];
 
   // Admin navigation

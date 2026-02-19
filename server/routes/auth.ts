@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { storage } from "../storage";
 import { sendWelcomeEmail, sendPasswordResetEmail } from "../services/email";
 import { AuthRequest, authenticateToken } from "../middleware/auth";
+import { registerNFTUser, loginNFTUser, setNFTAuthToken } from "../services/nft-auth";
 
 export function setupAuthRoutes(app: Express) {
   // Store reset tokens temporarily (in production, use Redis or database)
@@ -49,6 +50,16 @@ export function setupAuthRoutes(app: Express) {
       }
 
       const user = await storage.createUser(userData);
+
+      // Register with NFT marketplace (non-blocking, don't fail signup if this fails)
+      try {
+        const nftAuth = await registerNFTUser(user.email, password);
+        setNFTAuthToken(user._id, nftAuth.accessToken, nftAuth.address);
+        console.log("✅ NFT marketplace registration successful for user:", user.email);
+      } catch (error) {
+        console.warn("⚠️ NFT marketplace registration failed (non-critical):", error);
+        // Continue with signup even if NFT marketplace registration fails
+      }
 
       // Update user with embedded artist data if role is artist
       if (user.role === "artist") {
@@ -179,6 +190,17 @@ export function setupAuthRoutes(app: Express) {
       if (!isValidPassword) {
         console.log('❌ Invalid password for user:', email?.substring(0, 5) + '***');
         return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Login to NFT marketplace (non-blocking, don't fail login if this fails)
+      try {
+        const nftAuth = await loginNFTUser(user.email, password);
+        setNFTAuthToken(user._id, nftAuth.accessToken, nftAuth.address);
+        console.log("✅ NFT marketplace login successful for user:", user.email);
+        console.log("   Wallet Address:", nftAuth.address);
+      } catch (error) {
+        console.warn("⚠️ NFT marketplace login failed (non-critical):", error);
+        // Continue with login even if NFT marketplace login fails
       }
 
       // Update last login
