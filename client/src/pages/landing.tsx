@@ -687,7 +687,8 @@ export default function Landing() {
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/help" className="hover:text-primary transition-colors">Help Center</Link></li>
-                <li><Link href="/help" className="hover:text-primary transition-colors">Contact Us</Link></li>
+                <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+                <li><Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>

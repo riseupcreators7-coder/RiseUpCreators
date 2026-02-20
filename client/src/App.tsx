@@ -42,6 +42,7 @@ import EventDetails from "@/pages/event-details";
 import SongDetails from "@/pages/song-details";
 import BlogDetails from "@/pages/blog-details";
 import Contact from "@/pages/contact";
+import PrivacyPolicy from "@/pages/privacy-policy";
 import NotFound from "@/pages/not-found";
 
 // Layout
@@ -105,6 +106,7 @@ function AppRouter() {
         <Route path="/event/:id" component={EventDetails} />
         <Route path="/song/:id" component={SongDetails} />
         <Route path="/blogs/:id" component={BlogDetails} />
+        <Route path="/privacy-policy" component={PrivacyPolicy} />
 
         {/* Fallback */}
         <Route component={NotFound} />
