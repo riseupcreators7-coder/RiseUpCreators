@@ -70,7 +70,7 @@ export default function NFTMarketplace() {
       if (isOwnershipError || isApprovalError) {
         errorMessage = "This NFT is no longer available for sale. The seller may have removed it from the marketplace.";
       } else if (isFundingError) {
-        errorMessage = "Your wallet doesn't have enough funds. Please contact support to add funds to your wallet.";
+        errorMessage = "Your wallet doesn't have enough funds. Please add funds to your wallet from the Creator Dashboard.";
       } else if (isAlreadySoldError) {
         errorMessage = "This NFT has already been sold to another buyer.";
       } else if (errorMessage.includes("execution reverted")) {
@@ -125,7 +125,7 @@ export default function NFTMarketplace() {
       toast({
         title: "Error",
         description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support."
+          ? "Your wallet doesn't have enough funds. Please add funds from Creator Dashboard."
           : errorMessage,
         variant: "destructive"
       });

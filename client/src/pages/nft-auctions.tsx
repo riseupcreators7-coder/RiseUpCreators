@@ -90,7 +90,7 @@ export default function NFTAuctionsPage() {
       toast({
         title: "Error",
         description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support."
+          ? "Your wallet doesn't have enough funds. Please add funds from Creator Dashboard."
           : errorMessage,
         variant: "destructive"
       });

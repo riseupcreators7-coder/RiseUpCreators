@@ -326,16 +326,32 @@ export default function NFTAuctionTab() {
       });
     },
     onError: (error: Error) => {
-      const isFundingError = error.message.includes("funds") || 
-                            error.message.includes("balance") ||
-                            error.message.includes("insufficient") ||
-                            error.message.includes("Sender doesn't have enough funds");
+      const errorMessage = error.message.toLowerCase();
+      
+      let userFriendlyMessage = "Failed to create auction. Please try again.";
+      
+      // Check for specific error patterns
+      if (errorMessage.includes("not the nft owner") || errorMessage.includes("owner")) {
+        userFriendlyMessage = "You are not the owner of this NFT. Only the NFT owner can create auctions.";
+      } else if (errorMessage.includes("funds") || errorMessage.includes("balance") || errorMessage.includes("insufficient")) {
+        userFriendlyMessage = "Your wallet doesn't have enough funds to create this auction. Please add funds from the Wallet Management section.";
+      } else if (errorMessage.includes("already listed") || errorMessage.includes("already on auction")) {
+        userFriendlyMessage = "This NFT is already listed for sale or auction.";
+      } else if (errorMessage.includes("approval") || errorMessage.includes("approve")) {
+        userFriendlyMessage = "Failed to approve NFT for auction. Please try again.";
+      } else if (errorMessage.includes("invalid") && errorMessage.includes("price")) {
+        userFriendlyMessage = "Invalid starting price. Please enter a valid amount.";
+      } else if (errorMessage.includes("invalid") && errorMessage.includes("duration")) {
+        userFriendlyMessage = "Invalid auction duration. Please select a valid time period.";
+      } else if (errorMessage.includes("network") || errorMessage.includes("connection")) {
+        userFriendlyMessage = "Network error. Please check your connection and try again.";
+      } else if (errorMessage.includes("rejected") || errorMessage.includes("denied")) {
+        userFriendlyMessage = "Transaction was rejected. Please approve the transaction in your wallet.";
+      }
       
       toast({
-        title: "Error",
-        description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support to add funds to your wallet address."
-          : error.message,
+        title: "Auction Creation Failed",
+        description: userFriendlyMessage,
         variant: "destructive"
       });
     }

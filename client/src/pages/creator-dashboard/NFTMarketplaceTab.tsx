@@ -12,6 +12,7 @@ import { useRequireRole } from "@/hooks/use-auth";
 import { Package, Plus, Edit, Trash2, Eye, DollarSign, Image as ImageIcon, Loader2, Wallet, AlertCircle, Copy, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import Loading from "@/components/common/loading";
+import WalletFunding from "@/components/wallet/WalletFunding";
 import { getCreatorAuthHeaders } from "./utils";
 
 interface NFTCollection {
@@ -47,7 +48,6 @@ export default function NFTMarketplaceTab() {
   const [showMintNFT, setShowMintNFT] = useState(false);
   const [showListDialog, setShowListDialog] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState<string>("");
-  const [copiedAddress, setCopiedAddress] = useState(false);
 
   // Fetch wallet address
   const { data: walletData } = useQuery<{ walletAddress: string }>({
@@ -64,19 +64,6 @@ export default function NFTMarketplaceTab() {
   });
 
   const walletAddress = walletData?.walletAddress;
-
-  // Copy wallet address to clipboard
-  const copyWalletAddress = () => {
-    if (walletAddress) {
-      navigator.clipboard.writeText(walletAddress);
-      setCopiedAddress(true);
-      toast({
-        title: "Copied!",
-        description: "Wallet address copied to clipboard",
-      });
-      setTimeout(() => setCopiedAddress(false), 2000);
-    }
-  };
 
   // Form states
   const [collectionForm, setCollectionForm] = useState({
@@ -145,8 +132,25 @@ export default function NFTMarketplaceTab() {
         body: JSON.stringify(data)
       });
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create collection");
+        const errorData = await response.json().catch(() => ({}));
+        console.error("❌ Create collection API error:", errorData);
+        console.error("❌ Response status:", response.status);
+        console.error("❌ Response statusText:", response.statusText);
+        
+        // Extract the actual error message from various possible formats
+        let errorMessage = "Failed to create collection";
+        if (errorData.error) {
+          errorMessage = errorData.error;
+          console.log("✅ Extracted error from 'error' field:", errorMessage);
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+          console.log("✅ Extracted error from 'message' field:", errorMessage);
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData;
+          console.log("✅ Extracted error from string response:", errorMessage);
+        }
+        
+        throw new Error(errorMessage);
       }
       return response.json();
     },
@@ -160,17 +164,28 @@ export default function NFTMarketplaceTab() {
       });
     },
     onError: (error: Error) => {
-      // Check if it's a funding issue
-      const isFundingError = error.message.includes("funds") || 
-                            error.message.includes("balance") ||
-                            error.message.includes("insufficient") ||
-                            error.message.includes("Sender doesn't have enough funds");
+      console.error("❌ Collection creation failed:", error.message);
+      
+      // Check if it's a funding/balance issue - be more specific with the error detection
+      const errorMsg = error.message.toLowerCase();
+      const isFundingError = errorMsg.includes("insufficient wallet balance") || 
+                            errorMsg.includes("insufficient balance") ||
+                            errorMsg.includes("insufficient funds") ||
+                            errorMsg.includes("sender doesn't have enough funds") ||
+                            errorMsg.includes("not enough funds") ||
+                            errorMsg.includes("balance too low");
+      
+      let errorTitle = "Failed to Create Collection";
+      let errorDescription = error.message;
+      
+      if (isFundingError) {
+        errorTitle = "Insufficient Wallet Balance";
+        errorDescription = "Your wallet doesn't have enough funds to create an NFT collection. Please add funds using the 'Add Funds' button in the Wallet Management section above.";
+      }
       
       toast({
-        title: "Error",
-        description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support to add funds to your wallet address."
-          : error.message,
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive"
       });
     }
@@ -203,17 +218,25 @@ export default function NFTMarketplaceTab() {
       });
     },
     onError: (error: Error) => {
-      // Check if it's a funding issue
-      const isFundingError = error.message.includes("funds") || 
-                            error.message.includes("balance") ||
-                            error.message.includes("insufficient") ||
-                            error.message.includes("Sender doesn't have enough funds");
+      console.error("❌ NFT minting failed:", error.message);
+      
+      // Check if it's a funding/balance issue
+      const isFundingError = error.message.toLowerCase().includes("insufficient") || 
+                            error.message.toLowerCase().includes("balance") ||
+                            error.message.toLowerCase().includes("funds") ||
+                            error.message.toLowerCase().includes("sender doesn't have enough");
+      
+      let errorTitle = "Failed to Mint NFT";
+      let errorDescription = error.message;
+      
+      if (isFundingError) {
+        errorTitle = "Insufficient Wallet Balance";
+        errorDescription = "Your wallet doesn't have enough funds to mint an NFT. Please add funds using the 'Add Funds' button in the Wallet Management section above.";
+      }
       
       toast({
-        title: "Error",
-        description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support to add funds to your wallet address."
-          : error.message,
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive"
       });
     }
@@ -280,24 +303,32 @@ export default function NFTMarketplaceTab() {
         errorMessage = error.error;
       }
       
+      console.error("❌ NFT listing failed:", errorMessage);
+      
       // Check if it's a funding issue
-      const isFundingError = errorMessage.includes("funds") || 
-                            errorMessage.includes("balance") ||
-                            errorMessage.includes("insufficient") ||
-                            errorMessage.includes("Sender doesn't have enough funds");
+      const isFundingError = errorMessage.toLowerCase().includes("insufficient") || 
+                            errorMessage.toLowerCase().includes("balance") ||
+                            errorMessage.toLowerCase().includes("funds") ||
+                            errorMessage.toLowerCase().includes("sender doesn't have enough");
       
       // Check if it's an ownership issue
-      const isOwnershipError = errorMessage.includes("Not owner") || 
-                              errorMessage.includes("not owner") ||
-                              errorMessage.includes("ownership");
+      const isOwnershipError = errorMessage.toLowerCase().includes("not owner") || 
+                              errorMessage.toLowerCase().includes("ownership");
+      
+      let errorTitle = "Failed to List NFT";
+      let errorDescription = errorMessage;
+      
+      if (isFundingError) {
+        errorTitle = "Insufficient Wallet Balance";
+        errorDescription = "Your wallet doesn't have enough funds to list this NFT. Please add funds using the 'Add Funds' button in the Wallet Management section above.";
+      } else if (isOwnershipError) {
+        errorTitle = "Ownership Error";
+        errorDescription = "You don't own this NFT. Only the NFT owner can list it for sale.";
+      }
       
       toast({
-        title: "Error",
-        description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support to add funds to your wallet address."
-          : isOwnershipError
-          ? "You don't own this NFT. Only the NFT owner can list it for sale."
-          : errorMessage,
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive"
       });
     }
@@ -395,59 +426,8 @@ export default function NFTMarketplaceTab() {
         </div>
       </div>
 
-      {/* Wallet Address Card */}
-      {walletAddress ? (
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <Wallet className="w-6 h-6 text-blue-600 dark:text-blue-400 mt-1" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Your Wallet Address</h3>
-                <div className="flex items-center gap-2 mb-2">
-                  <code className="text-sm font-mono bg-white dark:bg-gray-900 px-3 py-1.5 rounded border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100">
-                    {walletAddress}
-                  </code>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8"
-                    onClick={copyWalletAddress}
-                  >
-                    {copiedAddress ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 mr-1 text-green-500" />
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 mr-1" />
-                        Copy
-                      </>
-                    )}
-                  </Button>
-                </div>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Send this address to support for manual funding before creating collections
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-500 mt-1" />
-              <div>
-                <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">Wallet Setup Required</h3>
-                <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  Please log in again to sync your wallet address from the NFT marketplace
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Wallet Management */}
+      <WalletFunding walletAddress={walletAddress} />
 
       {/* Collections Grid */}
       {collections && collections.length > 0 ? (

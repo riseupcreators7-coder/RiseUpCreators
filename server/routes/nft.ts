@@ -140,8 +140,26 @@ export function setupNFTRoutes(app: Express) {
       res.json({ success: true, collection, data: response.data });
     } catch (error: any) {
       console.error("❌ Error creating NFT collection:", error.response?.data || error.message);
+      
+      // Extract error message from various possible formats
+      let errorMessage = "Failed to create collection";
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       res.status(500).json({ 
-        message: error.response?.data?.message || "Failed to create collection" 
+        error: errorMessage,
+        message: errorMessage // Include both for compatibility
       });
     }
   });
@@ -190,8 +208,26 @@ export function setupNFTRoutes(app: Express) {
       res.json({ success: true, nft: nftDoc, data: response.data });
     } catch (error: any) {
       console.error("Error minting NFT:", error);
+      
+      // Extract error message from various possible formats
+      let errorMessage = "Failed to mint NFT";
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       res.status(500).json({ 
-        message: error.response?.data?.message || "Failed to mint NFT" 
+        error: errorMessage,
+        message: errorMessage // Include both for compatibility
       });
     }
   });

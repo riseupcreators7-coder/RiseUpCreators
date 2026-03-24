@@ -127,7 +127,7 @@ export default function ArtistSubscriptionTab() {
       toast({
         title: "Error",
         description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support to add funds to your wallet address."
+          ? "Your wallet doesn't have enough funds. Please add funds from the Wallet Management section."
           : error.message,
         variant: "destructive"
       });

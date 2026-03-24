@@ -18,6 +18,8 @@ import { setupAdsRoutes } from "./routes/ads";
 import { setupSearchRoutes } from "./routes/search";
 import { setupIntegrationRoutes } from "./routes/integrations";
 import { setupNFTRoutes } from "./routes/nft";
+import { setupPaymentRoutes } from "./routes/payment";
+import { setupWalletRoutes } from "./routes/wallet";
 import webhookRoutes from "./routes/webhooks";
 
 // Extend session type for cart
@@ -244,6 +246,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupAdsRoutes(app);
   setupIntegrationRoutes(app);
   setupNFTRoutes(app);
+  setupPaymentRoutes(app);
+  setupWalletRoutes(app);
   setupSearchRoutes(app);
   
   // Setup webhook routes (no auth middleware)

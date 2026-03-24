@@ -104,7 +104,7 @@ export default function CrowdfundingTab() {
       toast({
         title: "Error",
         description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support to add funds to your wallet address."
+          ? "Your wallet doesn't have enough funds. Please add funds from the Wallet Management section."
           : errorMessage,
         variant: "destructive"
       });
@@ -216,7 +216,7 @@ export default function CrowdfundingTab() {
       toast({
         title: "Error",
         description: isFundingError 
-          ? "Your wallet doesn't have enough funds. Please contact support to add funds to your wallet address."
+          ? "Your wallet doesn't have enough funds. Please add funds from the Wallet Management section."
           : isNotSuccessful
           ? "This campaign did not reach its funding goal and cannot receive revenue."
           : isNotFinalized
