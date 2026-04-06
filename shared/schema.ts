@@ -61,6 +61,24 @@ export const userSchema = z.object({
       x: z.string().optional(),
       website: z.string().optional()
     }).default({}),
+    youtubeChannel: z.object({
+      channelId: z.string(),
+      channelName: z.string(),
+      channelUrl: z.string(),
+      subscriberCount: z.number(),
+      videoCount: z.number(),
+      viewCount: z.number(),
+      thumbnails: z.object({
+        default: z.string(),
+        medium: z.string(),
+        high: z.string()
+      }),
+      description: z.string().optional(),
+      customUrl: z.string().optional(),
+      country: z.string().optional(),
+      verifiedAt: z.date(),
+      lastSyncedAt: z.date()
+    }).optional(),
     followers: z.array(ObjectIdType).default([]),   // Reference to User
     totalPlays: z.number().default(0),
     totalLikes: z.number().default(0),

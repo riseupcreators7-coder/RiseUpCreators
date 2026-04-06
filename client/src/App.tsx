@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { AuthModalProvider, useAuthModal } from "@/hooks/use-auth-modal";
 import { MusicPlayerProvider } from "@/hooks/use-music-player";
 import { ThemeProvider } from "@/hooks/use-theme";
+import { WalletProvider } from "@/hooks/use-wallet";
 
 // Development utilities
 import "@/utils/ad-testing"; // Make ad testing utils available globally
@@ -23,6 +24,11 @@ import Discover from "@/pages/discover";
 import Merch from "@/pages/merch";
 import MerchDetails from "@/pages/merch-details";
 import Events from "@/pages/events";
+import NFTMarketplace from "@/pages/nft-marketplace";
+import NFTAuctions from "@/pages/nft-auctions";
+import ArtistSubscriptions from "@/pages/artist-subscriptions";
+import Crowdfunding from "@/pages/crowdfunding";
+import MyNFTs from "@/pages/my-nfts";
 import Cart from "@/pages/cart";
 import Checkout from "@/pages/checkout";
 import Plans from "@/pages/plans";
@@ -36,6 +42,7 @@ import EventDetails from "@/pages/event-details";
 import SongDetails from "@/pages/song-details";
 import BlogDetails from "@/pages/blog-details";
 import Contact from "@/pages/contact";
+import PrivacyPolicy from "@/pages/privacy-policy";
 import NotFound from "@/pages/not-found";
 
 // Layout
@@ -72,6 +79,10 @@ function AppRouter() {
         <Route path="/discover" component={Discover} />
         <Route path="/merch" component={Merch} />
         <Route path="/merch/:id" component={MerchDetails} />
+        <Route path="/nft-marketplace" component={NFTMarketplace} />
+        <Route path="/nft-auctions" component={NFTAuctions} />
+        <Route path="/artist-subscriptions" component={ArtistSubscriptions} />
+        <Route path="/crowdfunding" component={Crowdfunding} />
         <Route path="/events" component={Events} />
         <Route path="/artist/:id" component={ArtistProfile} />
 
@@ -90,10 +101,12 @@ function AppRouter() {
         <Route path="/settings" component={Settings} />
         <Route path="/playlists" component={Playlists} />
         <Route path="/favorites" component={Favorites} />
+        <Route path="/my-nfts" component={MyNFTs} />
         <Route path="/order-tracking/:orderId" component={OrderTracking} />
         <Route path="/event/:id" component={EventDetails} />
         <Route path="/song/:id" component={SongDetails} />
         <Route path="/blogs/:id" component={BlogDetails} />
+        <Route path="/privacy-policy" component={PrivacyPolicy} />
 
         {/* Fallback */}
         <Route component={NotFound} />
@@ -121,12 +134,14 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
           <AuthProvider>
-            <MusicPlayerProvider>
-              <Router>
-                <AppWithProviders />
-                <Toaster />
-              </Router>
-            </MusicPlayerProvider>
+            <WalletProvider>
+              <MusicPlayerProvider>
+                <Router>
+                  <AppWithProviders />
+                  <Toaster />
+                </Router>
+              </MusicPlayerProvider>
+            </WalletProvider>
           </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>

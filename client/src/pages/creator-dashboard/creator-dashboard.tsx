@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import {
   Upload, Music, Calendar, ShoppingBag,
   DollarSign, Users, Heart, Play, Plus, Edit, Trash2, BookOpen,
-  TrendingUp, BarChart3, PieChart, Activity, Palette, Crown, Vote
+  TrendingUp, BarChart3, PieChart, Activity, Palette, Crown, Vote, Video,
+  Facebook, Instagram, Package, Gavel
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,13 +21,19 @@ import { sidebarEventBus } from "@/components/layout/sidebar";
 import OverviewTab from "./OverviewTab.tsx";
 import UploadTab from "./UploadTab.tsx";
 import SongsTab from "./SongsTab.tsx";
-
+import YouTubeTab from "./YouTubeTab.tsx";
+import FacebookTab from "./FacebookTab.tsx";
+import InstagramTab from "./InstagramTab.tsx";
 import EventsTab from "./EventsTab.tsx";
 import ScannerTab from "./ScannerTab.tsx";
 import MerchTab from "./MerchTab.tsx";
 import BlogsTab from "./BlogsTab.tsx";
 import AnalyticsTab from "./AnalyticsTab.tsx";
 import SettingsTab from "./SettingsTab.tsx";
+import NFTMarketplaceTab from "./NFTMarketplaceTab.tsx";
+import NFTAuctionTab from "./NFTAuctionTab.tsx";
+import ArtistSubscriptionTab from "./ArtistSubscriptionTab.tsx";
+import CrowdfundingTab from "./CrowdfundingTab.tsx";
 
 // Import types
 import type { ArtistProfile, Song, Event, Merch, Analytics, Blog } from "./types";
@@ -158,13 +165,34 @@ export default function CreatorDashboard() {
           </div>
 
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 lg:grid-cols-9 mb-6 md:mb-8 h-auto gap-1">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-16 mb-6 md:mb-8 h-auto gap-1">
               <TabsTrigger value="overview" className="text-xs md:text-sm">Overview</TabsTrigger>
               <TabsTrigger value="upload" className="text-xs md:text-sm">Upload</TabsTrigger>
               <TabsTrigger value="songs" className="text-xs md:text-sm">Songs</TabsTrigger>
               <TabsTrigger value="events" className="text-xs md:text-sm">Events</TabsTrigger>
+              <TabsTrigger value="youtube" className="text-xs md:text-sm flex items-center gap-1">
+                YouTube
+              </TabsTrigger>
+              <TabsTrigger value="facebook" className="text-xs md:text-sm flex items-center gap-1">
+                Facebook
+              </TabsTrigger>
+              <TabsTrigger value="instagram" className="text-xs md:text-sm flex items-center gap-1">
+                Instagram
+              </TabsTrigger>
               <TabsTrigger value="scanner" className="text-xs md:text-sm">Scanner</TabsTrigger>
               <TabsTrigger value="merch" className="text-xs md:text-sm">Merch</TabsTrigger>
+              <TabsTrigger value="nft-marketplace" className="text-xs md:text-sm flex items-center gap-1">
+                NFT Market
+              </TabsTrigger>
+              <TabsTrigger value="nft-auction" className="text-xs md:text-sm flex items-center gap-1">
+                Auctions
+              </TabsTrigger>
+              <TabsTrigger value="artist-subscription" className="text-xs md:text-sm flex items-center gap-1">
+                Subscriptions
+              </TabsTrigger>
+              <TabsTrigger value="crowdfunding" className="text-xs md:text-sm flex items-center gap-1">
+                Crowdfunding
+              </TabsTrigger>
               <TabsTrigger value="blogs" className="text-xs md:text-sm">Blogs</TabsTrigger>
               <TabsTrigger value="analytics" className="text-xs md:text-sm">Analytics</TabsTrigger>
               <TabsTrigger value="settings" className="text-xs md:text-sm">Settings</TabsTrigger>
@@ -173,10 +201,16 @@ export default function CreatorDashboard() {
             <OverviewTab />
             <UploadTab />
             <SongsTab />
-
             <EventsTab />
+            <YouTubeTab />
+            <FacebookTab />
+            <InstagramTab />
             <ScannerTab />
             <MerchTab />
+            <NFTMarketplaceTab />
+            <NFTAuctionTab />
+            <ArtistSubscriptionTab />
+            <CrowdfundingTab />
             <BlogsTab />
             <AnalyticsTab />
             <SettingsTab />

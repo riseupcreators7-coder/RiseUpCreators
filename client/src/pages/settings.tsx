@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { User, Save, Upload } from "lucide-react";
+import { User, Save, Upload, Youtube, CheckCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
@@ -31,6 +32,7 @@ type ProfileForm = z.infer<typeof profileSchema>;
 export default function Settings() {
   const auth = useRequireAuth();
   const [isUploading, setIsUploading] = useState(false);
+  const [isVerifyingYouTube, setIsVerifyingYouTube] = useState(false);
   const queryClient = useQueryClient();
 
   // API Queries
@@ -244,8 +246,59 @@ export default function Settings() {
     onError: () => toast({ title: "Error", description: "Failed to delete account", variant: "destructive" }),
   });
 
+  // ---------------- YouTube Verification Mutation ----------------
+  const verifyYouTubeMutation = useMutation({
+    mutationFn: async (channelUrl: string) => {
+      const response = await fetch("/api/creators/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("ruc_auth_token")}`
+        },
+        body: JSON.stringify({ channelUrl })
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to verify YouTube channel");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users/me/settings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/artists/profile"] });
+      setIsVerifyingYouTube(false);
+      toast({
+        title: "Success!",
+        description: "YouTube channel verified successfully. Your stats will appear on your profile."
+      });
+    },
+    onError: (error: Error) => {
+      setIsVerifyingYouTube(false);
+      toast({
+        title: "Verification Failed",
+        description: error.message || "Failed to verify YouTube channel",
+        variant: "destructive"
+      });
+    }
+  });
+
   // ---------------- Handlers ----------------
   const handleProfileSubmit = (data: ProfileForm) => updateProfileMutation.mutate(data);
+
+  const handleVerifyYouTube = () => {
+    const youtubeUrl = profileForm.getValues("youtube");
+    if (!youtubeUrl || !youtubeUrl.trim()) {
+      toast({
+        title: "YouTube URL Required",
+        description: "Please enter your YouTube channel URL first",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsVerifyingYouTube(true);
+    verifyYouTubeMutation.mutate(youtubeUrl);
+  };
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -366,8 +419,14 @@ export default function Settings() {
                     <Input id="instagram" placeholder="@username" {...profileForm.register("instagram")} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="youtube">YouTube</Label>
-                    <Input id="youtube" placeholder="Channel URL" {...profileForm.register("youtube")} />
+                    <Label htmlFor="youtube">YouTube Channel</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        id="youtube" 
+                        placeholder="https://youtube.com/@yourchannel" 
+                        {...profileForm.register("youtube")} 
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="x">X (Twitter)</Label>

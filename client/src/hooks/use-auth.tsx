@@ -284,6 +284,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     console.log('Auth state cleared immediately');
     
+    // Dispatch custom event to trigger wallet disconnect
+    window.dispatchEvent(new CustomEvent('user-logout'));
+    console.log('Wallet disconnect event dispatched');
+    
     // Navigate immediately to ensure UI updates
     navigate("/");
     console.log('Navigation triggered immediately');
